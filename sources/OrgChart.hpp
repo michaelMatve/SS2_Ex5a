@@ -1,5 +1,7 @@
 #include <string>
 #include <vector>
+#include <iostream>
+#include <stdexcept>
 
 namespace ariel{
     class OrgChart
@@ -30,98 +32,60 @@ namespace ariel{
         OrgChart& add_root(std::string data);
 
         //add children
-        OrgChart& add_sub(std::string son, std::string father);
+        OrgChart& add_sub(std::string father, std::string son);
 
         //find
         ONode* find(std::string data);
-        //////level_order//////
-        class level_order_Iterator
+
+        friend std::ostream& operator<<(std::ostream& My_output,const OrgChart& tree);
+
+        class Iterator
         {
             ONode * ptr;
-            std::vector<ONode*> tor;
-            int place;
+            std::vector<ONode*> ptr_vec;
+            ulong place;
         
             public:
-                level_order_Iterator(ONode* new_ptr)
+                Iterator(ONode* new_ptr)
                 {
                     this->ptr = new_ptr;
                     this->place = 0;
                 }
-    
                 std::string& operator*();
-    
-                level_order_Iterator& operator++();
 
-                level_order_Iterator operator++(int);
-    
-                bool operator!=(level_order_Iterator &other);
-
-                level_order_Iterator& full_tor();
-    
-        };
-
-    level_order_Iterator begin_level_order();
-
-    level_order_Iterator end_level_order();
-
-    //////reverse_order//////
-    
-        class reverse_order_Iterator
-        {
-            ONode * ptr;
-            std::vector<ONode*> stack;
-            int place;
-        
-            public:
-                reverse_order_Iterator(ONode* new_ptr)
-                {
-                    this->ptr = new_ptr;
-                    this->place = 0;
-                }
-    
-                std::string& operator*();
-    
-                reverse_order_Iterator& operator++();
-
-                reverse_order_Iterator operator++(int);
-
-                bool operator!=(reverse_order_Iterator &other);
+                Iterator& operator++();
                 
-                reverse_order_Iterator& full_Stuck();
-    
-        };
+                Iterator operator++(int);
+                
+                bool operator!=(const Iterator &other) const ;
 
-    reverse_order_Iterator begin_reverse_order();
+                Iterator& full_tor();
+                
+                Iterator& full_stack();
 
-    reverse_order_Iterator end_reverse_order();
+                Iterator& full_vec();
 
-        //////preorder/////
+                std::string* operator->();
 
-        class preorder_Iterator
-        {
-            ONode * ptr;
-        
-            public:
-                preorder_Iterator(ONode* new_ptr)
-                {
-                    this->ptr = new_ptr;
-                }
-    
-                std::string& operator*();
-    
-                preorder_Iterator& operator++();
+                ONode* get_ptr();
 
-                preorder_Iterator operator++(int);
-    
-                bool operator!=(preorder_Iterator &other);
-    
-        };
+    };
 
-    preorder_Iterator begin_preorder();
+    Iterator begin();
 
-    preorder_Iterator end_preorder();
+    Iterator end();
 
+    Iterator begin_level_order();
 
+    Iterator end_level_order();
+
+    Iterator begin_reverse_order();
+
+    Iterator reverse_order();
+
+    Iterator begin_preorder();
+
+    Iterator end_preorder();
     };
 }
 
