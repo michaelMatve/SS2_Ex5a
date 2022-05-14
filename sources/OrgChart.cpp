@@ -64,40 +64,42 @@ namespace ariel{
     std::ostream& operator<<(std::ostream& My_output,const OrgChart& tree)
     {
         My_output<<"-----------------start----------"<<"\n";
-        ulong colums =0;
+        int colums =0;
 
         OrgChart::ONode* curr_node = tree.root;
         
-        My_output<< curr_node->data;
-        colums = curr_node->data.size();
+        My_output<<" ("<<colums<< ") "<< curr_node->data;
 
-        while(curr_node!= nullptr)
+       while(curr_node!= nullptr)
         {
-            if(curr_node->child != nullptr)
+            while(curr_node->child != nullptr)
             {
                 curr_node= curr_node->child;
-                My_output<< " -> " <<curr_node->data;
-                colums = colums+curr_node->data.size() + 5 ;
+                ++colums;
+                My_output<< " -> " <<" ("<<colums<< ") "<<curr_node->data;
             }
-            else if(curr_node->brother != nullptr)
-            {
-                colums = colums -curr_node->data.size() - 5 ;
-                curr_node = curr_node->brother;
-                My_output<< "\n";
-                for(int i= 0 ; i<colums ; i++)
-                {
-                   My_output<<" ";  
-                }
-                My_output<< " -> " <<curr_node->data;
-            }
-            else
+            while(curr_node->brother == nullptr)
             {
                 curr_node = curr_node->father;
-                colums = colums -curr_node->data.size() - 5 ;
+                if(curr_node == nullptr)
+                {
+                    break;
+                }
+                --colums;
+            }
+            if(curr_node != nullptr)
+            {
+                curr_node = curr_node->brother;
+                My_output<< "\n";
+                for(ulong i= 0 ; i<colums ; i++)
+                {
+                   My_output<<"\t";  
+                }
+                My_output<< " -> " <<" ("<<colums<< ") "<<curr_node->data;
             }
         }
 
-        My_output<<"-----------------end----------"<<std::endl;
+        My_output<<"\n"<<"-----------------end----------"<<std::endl;
         return My_output;
     }
     
@@ -134,12 +136,12 @@ namespace ariel{
  
     OrgChart::Iterator OrgChart::begin()
     {
-        return this->begin_preorder();
+        return this->begin_level_order();
     }
 
     OrgChart::Iterator OrgChart::end()
     {
-        return this->end_preorder();
+        return this->end_level_order();
     }
  
     std::string& OrgChart::Iterator::operator*()
@@ -217,14 +219,30 @@ namespace ariel{
 
     OrgChart::Iterator& OrgChart::Iterator::full_stack()
     {
-        *this = this->full_tor();
-        for(ulong index = 0 ; index< (this->ptr_vec.size()/2); index++)
+        if(this->ptr == nullptr)
         {
-            ONode* tmp = this->ptr_vec[index];
-            this->ptr_vec[index] = this->ptr_vec[ptr_vec.size()-1-index] ;
-            this->ptr_vec[ptr_vec.size()-1-index] = tmp;
+            return *this;
         }
-        return *this;
+
+       this->ptr_vec.insert(this->ptr_vec.begin(),this->ptr);
+       ONode* curr_node  = this->ptr;
+       ulong tor_place = 0;
+
+        while(tor_place < this->ptr_vec.size())
+       {   
+           curr_node = this->ptr_vec[this->ptr_vec.size()- tor_place -1];
+           curr_node = curr_node->child;
+           int index =0;
+           while(curr_node != nullptr)
+           {
+               this->ptr_vec.insert(this->ptr_vec.begin()+ index , curr_node);
+               curr_node = curr_node->brother;
+               ++index;
+           }
+           ++tor_place;
+       }
+       this->ptr = this->ptr_vec[0];
+       return *this;
     }
 
     OrgChart::Iterator& OrgChart::Iterator::full_vec()
@@ -233,23 +251,28 @@ namespace ariel{
         this->ptr_vec.push_back(curr_node);
         while(curr_node!= nullptr)
         {
-            if(curr_node->child != nullptr)
+            while(curr_node->child != nullptr)
             {
                 curr_node= curr_node->child;
                 this->ptr_vec.push_back(curr_node);
             }
-            else if(curr_node->brother != nullptr)
+            while(curr_node->brother == nullptr)
+            {
+                curr_node = curr_node->father;
+                if(curr_node == nullptr)
+                {
+                    break;
+                }
+            }
+            if(curr_node != nullptr)
             {
                 curr_node= curr_node->brother;
                 this->ptr_vec.push_back(curr_node);
             }
-            else
-            {
-                this->ptr = this->ptr->father;
-            }
         }
         return *this;
     }
+    
     OrgChart::ONode* OrgChart::Iterator::get_ptr()
     {
         return this->ptr;
