@@ -7,6 +7,7 @@ namespace ariel{
     class OrgChart
     {
         private:
+            //node class that save the date and pointer to other nodes
             struct ONode
             {
                 std::string data;
@@ -25,7 +26,7 @@ namespace ariel{
         ONode* root;
 
         public:
-
+        //constarctor
         OrgChart();
 
         //change root
@@ -34,11 +35,11 @@ namespace ariel{
         //add children
         OrgChart& add_sub(std::string father, std::string son);
 
-        //find
+        //find node with the same data
         ONode* find(std::string data);
-
+        //print
         friend std::ostream& operator<<(std::ostream& My_output,const OrgChart& tree);
-
+        //iterator
         class Iterator
         {
             ONode * ptr;
@@ -58,7 +59,7 @@ namespace ariel{
                 Iterator operator++(int);
                 
                 bool operator!=(const Iterator &other) const ;
-
+                //function that help to full the vector
                 Iterator& full_tor();
                 
                 Iterator& full_stack();
@@ -74,15 +75,15 @@ namespace ariel{
     Iterator begin();
 
     Iterator end();
-
+    // level order
     Iterator begin_level_order();
 
     Iterator end_level_order();
-
+    //revers order
     Iterator begin_reverse_order();
 
     Iterator reverse_order();
-
+    //preorder order
     Iterator begin_preorder();
 
     Iterator end_preorder();
